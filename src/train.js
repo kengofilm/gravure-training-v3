@@ -13,10 +13,26 @@ function filterPool(){
   const catFilter = byId('catFilter').value;
   const difficulty = byId('difficulty').value;
   let pool = STATE.all.slice();
-  if(catFilter!=='any'){ pool = pool.filter(q=> q.cat===catFilter); }
-  if(difficulty!=='any'){ pool = pool.filter(q=> q.level===difficulty); }
-  if(mode==='wrong'){ pool = pool.filter(q=> STATE.wrongIds.has(q.id)); }
-  else if(mode==='weak'){ pool.sort((a,b)=> getWeakScore(b.id)-getWeakScore(a.id)); }
+
+  // カテゴリフィルタ
+  if(catFilter!=='any'){ 
+    pool = pool.filter(q=> q.cat===catFilter); 
+  }
+  // 難易度フィルタ
+  if(difficulty!=='any'){ 
+    pool = pool.filter(q=> q.level===difficulty); 
+  }
+
+  // 出題モード別処理
+  if(mode==='wrong'){ 
+    pool = pool.filter(q=> STATE.wrongIds.has(q.id)); 
+  }
+  else if(mode==='weak'){ 
+    // 正答率70%未満 or 「わからない」で登録された問題だけ抽出
+    pool = pool.filter(q => getWeakScore(q.id) > 0.3 || STATE.wrongIds.has(q.id));
+    shuffle(pool); // 並び順はランダム
+  }
+
   return pool;
 }
 function renderQuestion(){
