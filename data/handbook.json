@@ -1,0 +1,13 @@
+{
+  "chapters": [
+    {
+      "title": "スターター",
+      "sections": [
+        {
+          "title": "概要",
+          "content": "data/ 配下に JSON を置くと自動で読み込みます。questions.json / glossary.json は最低限必要です。"
+        }
+      ]
+    }
+  ]
+}
