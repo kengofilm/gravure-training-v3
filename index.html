@@ -13,6 +13,7 @@
 </header>
 
 <main>
+  <!-- ナビ -->
   <nav class="nav">
     <button id="btn-train"    data-tab="train"    class="active">トレーニング</button>
     <button id="btn-glossary" data-tab="glossary">用語集</button>
@@ -20,55 +21,84 @@
     <button id="btn-handbook" data-tab="handbook">参考書</button>
   </nav>
 
+  <!-- ===== トレーニング ===== -->
   <section id="tab-train">
     <div class="panel">
       <h2>トレーニング</h2>
-      <div class="row">
+
+      <!-- 設定行 -->
+      <div class="row" style="flex-wrap:wrap; gap:12px">
+        <!-- 出題モード -->
         <label>出題モード
-          <select id="mode">
-            <option value="any">指定しない</option>
-            <option value="wrong">復習（間違えた問題のみ）</option>
-            <option value="weak">苦手順優先</option>
+          <select id="mode" class="input">
+            <option value="any" selected>指定しない</option>
+            <option value="wrong">苦手な問題（復習）</option>
           </select>
         </label>
 
+        <!-- カテゴリ -->
         <label>カテゴリ
-          <select id="catFilter">
-            <option value="any">指定しない</option>
+          <select id="category" class="input">
+            <option value="any" selected>指定しない</option>
             <option value="技術">技術</option>
             <option value="営業実務">営業実務</option>
           </select>
         </label>
 
+        <!-- 難易度 -->
         <label>難易度
-          <select id="difficulty">
-            <option value="any">指定しない</option>
+          <select id="difficulty" class="input">
+            <option value="any" selected>指定しない</option>
             <option value="low">低</option>
             <option value="mid">中</option>
             <option value="high">高</option>
           </select>
         </label>
 
+        <!-- 出題数 -->
         <label>出題数
-          <select id="countPreset">
-            <option value="15">15問</option>
+          <select id="countSel" class="input">
+            <option value="15" selected>15問</option>
             <option value="30">30問</option>
             <option value="50">50問</option>
             <option value="100">100問</option>
           </select>
         </label>
 
-        <button id="start" class="btn primary">開始</button>
-        <button id="resume" class="btn secondary" title="一時保存から再開">再開</button>
-        <button id="save" class="btn secondary" title="途中保存して後で続きます">一時保存</button>
-        <button id="resetSession" class="btn danger" title="保存中のセッションを消去">保存削除</button>
+        <!-- 互換: 既存JSのcount参照を生かすための隠し入力 -->
+        <input id="count" type="hidden" value="15">
+
+        <!-- 操作 -->
+        <div class="row" style="gap:8px">
+          <button id="start" class="btn primary">開始</button>
+          <button id="pause" class="btn secondary" disabled>一時保存</button>
+          <button id="resume" class="btn" disabled>再開</button>
+          <label class="muted" style="display:flex;align-items:center;gap:6px">
+            <input id="autoSave" type="checkbox">
+            自動保存
+          </label>
+        </div>
       </div>
-      <div id="progress" class="progress"><div class="bar" style="width:0%"></div></div>
+
+      <!-- 進捗表示（任意。JSで更新） -->
+      <div class="row" style="margin-top:8px; align-items:center; gap:12px">
+        <div id="progressText" class="muted">—</div>
+        <div id="progressBar" style="flex:1; height:6px; background:#e5e7eb; border-radius:4px; overflow:hidden">
+          <div id="progressFill" style="height:100%; width:0%"></div>
+        </div>
+      </div>
     </div>
 
-    <div id="game" class="stack"></div>
+    <!-- 出題領域：1枚だけ差し替え表示 -->
+    <div class="panel" id="gameShell" style="margin-top:12px">
+      <div id="game" class="stack">
+        <!-- JSで #cardHost に1問ずつ差し替えレンダリング -->
+        <div id="cardHost"></div>
+      </div>
+    </div>
   </section>
 
+  <!-- ===== 用語集 ===== -->
   <section id="tab-glossary" hidden>
     <div class="panel">
       <h2>用語集</h2>
@@ -82,6 +112,7 @@
     </div>
   </section>
 
+  <!-- ===== 図式 ===== -->
   <section id="tab-diagram" hidden>
     <div class="panel">
       <h2>図式モード（入稿 → 色校正 → 製版 → 実機刷り）</h2>
@@ -103,43 +134,57 @@
             </style>
           </defs>
 
+          <!-- 上段メインフロー -->
           <g class="node" data-term="デザイン入稿">
             <rect class="bx" x="40"  y="60"  width="200" height="70"></rect>
             <text class="tx" x="140" y="90" text-anchor="middle">デザイン入稿</text>
             <text class="sub" x="140" y="110" text-anchor="middle">データ / プロファイル</text>
           </g>
+
           <g class="node" data-term="色校正">
             <rect class="bx" x="300" y="60"  width="200" height="70"></rect>
             <text class="tx" x="400" y="90" text-anchor="middle">色校正</text>
             <text class="sub" x="400" y="110" text-anchor="middle">標準見本 / ΔE / D50</text>
           </g>
+
           <g class="node" data-term="グラビア版">
             <rect class="bx" x="560" y="60"  width="200" height="70"></rect>
             <text class="tx" x="660" y="90" text-anchor="middle">製版 / 版</text>
             <text class="sub" x="660" y="110" text-anchor="middle">セル / 線数 / 彫刻</text>
           </g>
+
           <g class="node" data-term="刷り出し確認">
             <rect class="bx" x="820" y="60"  width="100" height="70"></rect>
             <text class="tx" x="870" y="90" text-anchor="middle">実機刷り</text>
             <text class="sub" x="870" y="110" text-anchor="middle">条件最適 / QA</text>
           </g>
+
+          <!-- メイン矢印 -->
           <line class="ln" x1="240" y1="95" x2="300" y2="95"/>
           <line class="ln" x1="500" y1="95" x2="560" y2="95"/>
           <line class="ln" x1="760" y1="95" x2="820" y2="95"/>
+
+          <!-- 下段（品質キーポイント） -->
           <g class="node" data-term="白引き">
             <rect class="bx" x="120" y="240" width="160" height="60"></rect>
             <text class="tx" x="200" y="268" text-anchor="middle">白引き</text>
           </g>
+
           <g class="node" data-term="レジスター">
             <rect class="bx" x="360" y="240" width="160" height="60"></rect>
             <text class="tx" x="440" y="268" text-anchor="middle">見当 / レジ</text>
           </g>
+
           <g class="node" data-term="乾燥不良">
             <rect class="bx" x="600" y="240" width="200" height="60"></rect>
             <text class="tx" x="700" y="268" text-anchor="middle">乾燥 / 残留溶剤</text>
           </g>
+
+          <!-- 下段矢印 -->
           <line class="ln" x1="280" y1="270" x2="360" y2="270"/>
           <line class="ln" x1="520" y1="270" x2="600" y2="270"/>
+
+          <!-- 白引き→色校正の矢印（斜め） -->
           <line class="ln" x1="240" y1="240" x2="340" y2="130"/>
         </svg>
         <div class="diagram-hint">ボックスをタップすると該当用語ページへ移動します</div>
@@ -147,6 +192,7 @@
     </div>
   </section>
 
+  <!-- ===== 参考書 ===== -->
   <section id="tab-handbook" hidden>
     <div class="panel">
       <h2>参考書</h2>
@@ -159,6 +205,7 @@
   </section>
 
 </main>
-<script type="module" src="./src/main.js?v=20250809z"></script>
+
+<script src="./app.js?v=20250809z"></script>
 </body>
 </html>
